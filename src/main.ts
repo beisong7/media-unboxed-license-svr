@@ -30,9 +30,8 @@ async function bootstrap() {
 
   // CORS
   app.enableCors({
-    origin: isProduction ? false : '*',
+    origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
   });
 
   await app.listen(port);
