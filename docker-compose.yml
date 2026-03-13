@@ -1,0 +1,19 @@
+services:
+  api:
+    image: mediaunboxed-backend:latest
+    container_name: mediaunboxed-api
+    restart: unless-stopped
+    env_file:
+      - /secret/.env_production
+    networks:
+      - traefik-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mediaunboxed-api.rule=Host(`api.mediaunboxed.com`)"
+      - "traefik.http.routers.mediaunboxed-api.entrypoints=websecure"
+      - "traefik.http.routers.mediaunboxed-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.mediaunboxed-api.loadbalancer.server.port=3000"
+
+networks:
+  traefik-network:
+    external: true

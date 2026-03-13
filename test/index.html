@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediaUnboxed License Admin</title>
+  <style>
+    :root {
+      --bg-primary: #0f0f0f;
+      --bg-secondary: #1a1a1a;
+      --bg-card: #242424;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --accent: #6366f1;
+      --accent-hover: #818cf8;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: #333;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      background: linear-gradient(135deg, var(--accent), #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--danger);
+    }
+
+    .status-dot.connected {
+      background: var(--success);
+      box-shadow: 0 0 10px var(--success);
+    }
+
+    .config-bar {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      flex-wrap: wrap;
+    }
+
+    .config-bar input {
+      flex: 1;
+      min-width: 200px;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+
+    .config-bar input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      color: black;
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 12px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .card {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select {
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .license-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .license-table th,
+    .license-table td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .license-table th {
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .license-table tr:hover {
+      background: var(--bg-card);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-active {
+      background: rgba(34, 197, 94, 0.2);
+      color: var(--success);
+    }
+
+    .badge-expired {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+    }
+
+    .badge-revoked {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--warning);
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 16px 24px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.success {
+      background: var(--success);
+    }
+
+    .toast.error {
+      background: var(--danger);
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 30px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal h3 {
+      margin-bottom: 20px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .key-display {
+      background: var(--bg-card);
+      padding: 16px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      word-break: break-all;
+      margin: 15px 0;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .copy-btn {
+      margin-top: 10px;
+    }
+
+    .validate-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .device-list {
+      margin-top: 15px;
+    }
+
+    .device-item {
+      background: var(--bg-card);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .device-info {
+      flex: 1;
+    }
+
+    .device-info p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 5px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>🔐 MediaUnboxed License Admin</h1>
+      <div class="connection-status">
+        <span id="statusText">Disconnected</span>
+        <div class="status-dot" id="statusDot"></div>
+      </div>
+    </header>
+
+    <div class="config-bar">
+      <input type="text" id="baseUrl" placeholder="Base URL (e.g., http://localhost:3000)"
+        value="http://localhost:3000">
+      <input type="text" id="apiKey" placeholder="API Key" value="dev-api-key-change-in-production">
+      <button class="btn-primary" onclick="testConnection()">Test Connection</button>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('licenses')">📋 Licenses</div>
+      <div class="tab" onclick="showTab('create')">➕ Create License</div>
+      <div class="tab" onclick="showTab('validate')">✅ Validate License</div>
+    </div>
+
+    <!-- Licenses Tab -->
+    <div id="licenses" class="tab-content active">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h2>All Licenses</h2>
+          <button class="btn-secondary btn-sm" onclick="loadLicenses()">🔄 Refresh</button>
+        </div>
+        <div id="licensesContainer">
+          <div class="empty-state">
+            <p>Click "Test Connection" to load licenses</p>
+          </div>
+        </div>
+        <div id="searchResults"></div>
+      </div>
+    </div>
+
+    <!-- Create License Tab -->
+    <div id="create" class="tab-content">
+      <div class="card">
+        <h2>Create New License</h2>
+        <form id="createForm" onsubmit="createLicense(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Licensed To *</label>
+              <input type="text" id="licensedTo" required placeholder="Organization Name">
+            </div>
+            <div class="form-group">
+              <label>Email *</label>
+              <input type="email" id="email" required placeholder="admin@organization.com">
+            </div>
+            <div class="form-group">
+              <label>Max Devices</label>
+              <input type="number" id="maxDevices" value="3" min="1" max="100">
+            </div>
+            <div class="form-group">
+              <label>Offline Grace Days</label>
+              <input type="number" id="offlineGraceDays" value="180" min="1" max="365">
+            </div>
+            <div class="form-group">
+              <label>Expires At *</label>
+              <input type="datetime-local" id="expiresAt" required>
+            </div>
+            <div class="form-group">
+              <label>Features</label>
+              <select id="features">
+                <option value="all">All Features</option>
+                <option value="basic">Basic</option>
+                <option value="pro">Pro</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top: 20px;">
+            <button type="submit" class="btn-primary">🔐 Generate License</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Validate License Tab -->
+    <div id="validate" class="tab-content">
+      <div class="card">
+        <h2>Validate License Key</h2>
+        <div class="form-grid">
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>Encrypted License Key *</label>
+            <input type="text" id="licenseKey" placeholder="Paste the encrypted license key here">
+          </div>
+          <div class="form-group">
+            <label>Machine ID *</label>
+            <input type="text" id="machineId" placeholder="device-unique-id" value="test-device-12345">
+          </div>
+          <div class="form-group">
+            <label>Timezone</label>
+            <input type="text" id="timezone" placeholder="America/New_York" value="America/New_York">
+          </div>
+          <div class="form-group">
+            <label>Platform</label>
+            <input type="text" id="platform" placeholder="darwin" value="darwin">
+          </div>
+          <div class="form-group">
+            <label>App Version</label>
+            <input type="text" id="appVersion" placeholder="1.0.0" value="1.0.0">
+          </div>
+        </div>
+        <div style="margin-top: 20px;">
+          <button class="btn-primary" onclick="validateLicense()">✅ Validate License</button>
+        </div>
+        <div id="validateResult" class="validate-section" style="display: none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- License Details Modal -->
+  <div class="modal-overlay" id="detailsModal">
+    <div class="modal">
+      <h3>License Details</h3>
+      <div id="licenseDetails"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generated Key Modal -->
+  <div class="modal-overlay" id="keyModal">
+    <div class="modal">
+      <h3>🎉 License Generated Successfully!</h3>
+      <p style="color: var(--text-secondary); margin-bottom: 15px;">Save this encrypted key securely. It cannot be
+        retrieved later.</p>
+      <div class="key-display" id="generatedKey"></div>
+      <button class="btn-primary copy-btn" onclick="copyKey()">📋 Copy to Clipboard</button>
+      <div id="generatedLicenseInfo" style="margin-top: 20px;"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeKeyModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // State
+    let licenses = [];
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+      const tomorrow = new Date();
+      tomorrow.setFullYear(tomorrow.getFullYear() + 1);
+      document.getElementById('expiresAt').value = tomorrow.toISOString().slice(0, 16);
+    });
+
+    // API Helper
+    async function api(endpoint, method = 'GET', body = null, requiresAuth = true) {
+      const baseUrl = document.getElementById('baseUrl').value.replace(/\/$/, '');
+      const apiKey = document.getElementById('apiKey').value;
+
+      const headers = { 'Content-Type': 'application/json' };
+      if (requiresAuth) {
+        headers['x-api-key'] = apiKey;
+      }
+
+      const options = { method, headers };
+      if (body) {
+        options.body = JSON.stringify(body);
+      }
+
+      const response = await fetch(`${baseUrl}${endpoint}`, options);
+      return response.json();
+    }
+
+    // Toast
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Tabs
+    function showTab(tabId) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    // Test Connection
+    async function testConnection() {
+      try {
+        const result = await api('/api/license/test-connection', 'GET');
+        // If we get here without error, connection works (even if endpoint doesn't exist)
+        document.getElementById('statusDot').classList.add('connected');
+        document.getElementById('statusText').textContent = 'Connected';
+        showToast('Connected to server!', 'success');
+        loadLicenses();
+      } catch (error) {
+        // Try to connect anyway - maybe the test endpoint doesn't exist
+        try {
+          await fetch(document.getElementById('baseUrl').value);
+          document.getElementById('statusDot').classList.add('connected');
+          document.getElementById('statusText').textContent = 'Connected';
+          showToast('Connected to server!', 'success');
+        } catch (e) {
+          document.getElementById('statusDot').classList.remove('connected');
+          document.getElementById('statusText').textContent = 'Connection Failed';
+          showToast('Failed to connect to server', 'error');
+        }
+      }
+    }
+
+    // Load Licenses
+    async function loadLicenses() {
+      const container = document.getElementById('licensesContainer');
+      container.innerHTML = '<div class="empty-state"><p>Loading...</p></div>';
+
+      try {
+        const result = await api('/api/license');
+        if (result.success && result.data.licenses.length > 0) {
+          container.innerHTML = `
+            <table class="license-table">
+              <thead>
+                <tr>
+                  <th>License ID</th>
+                  <th>Licensed To</th>
+                  <th>Email</th>
+                  <th>Devices</th>
+                  <th>Expires</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${result.data.licenses.map(license => {
+            const status = license.revoked ? 'revoked' : (new Date(license.expiresAt) < new Date() ? 'expired' : 'active');
+            const statusClass = status === 'active' ? 'badge-active' : (status === 'expired' ? 'badge-expired' : 'badge-revoked');
+            return `
+                    <tr>
+                      <td><strong>${license.licenseId}</strong></td>
+                      <td>${license.licensedTo}</td>
+                      <td>${license.email}</td>
+                      <td>${license.devicesUsed} / ${license.maxDevices}</td>
+                      <td>${new Date(license.expiresAt).toLocaleDateString()}</td>
+                      <td><span class="badge ${statusClass}">${status.toUpperCase()}</span></td>
+                      <td class="actions">
+                        <button class="btn-primary btn-sm" onclick="viewLicenseDetails('${license.licenseId}')">View</button>
+                        ${!license.revoked ? `<button class="btn-warning btn-sm" onclick="revokeLicense('${license.licenseId}')">Revoke</button>` : ''}
+                      </td>
+                    </tr>
+                  `;
+          }).join('')}
+              </tbody>
+            </table>
+            <p style="margin-top: 15px; color: var(--text-secondary);">Total: ${result.data.total} license(s)</p>
+          `;
+        } else {
+          container.innerHTML = `
+            <div class="empty-state">
+              <p>No licenses found. Create one using the "Create License" tab.</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p style="color: var(--danger);">Failed to load licenses. Make sure the server is running.</p>
+          </div>
+        `;
+      }
+    }
+
+    // View License Details
+    async function viewLicenseDetails(licenseId) {
+      try {
+        const result = await api(`/api/license/${licenseId}`);
+        if (result.success) {
+          displayLicenseCard(result.data);
+          // Scroll to the card
+          document.getElementById('searchResults').scrollIntoView({ behavior: 'smooth' });
+        } else {
+          showToast(result.message || 'License not found', 'error');
+        }
+      } catch (error) {
+        showToast('Failed to load license details', 'error');
+      }
+    }
+
+    // Search License
+    async function searchLicense() {
+      const licenseId = document.getElementById('searchLicenseId').value.trim();
+      if (!licenseId) {
+        showToast('Please enter a license ID', 'error');
+        return;
+      }
+
+      try {
+        const result = await api(`/api/license/${licenseId}`);
+        if (result.success) {
+          displayLicenseCard(result.data);
+        } else {
+          showToast(result.message || 'License not found', 'error');
+        }
+      } catch (error) {
+        showToast('Failed to search license', 'error');
+      }
+    }
+
+    // Get License Card HTML (reusable for modal and search)
+    function getLicenseCardHtml(license) {
+      const status = license.revoked ? 'revoked' : (new Date(license.expiresAt) < new Date() ? 'expired' : 'active');
+      const statusClass = status === 'active' ? 'badge-active' : (status === 'expired' ? 'badge-expired' : 'badge-revoked');
+
+      return `
+        <div class="card" style="margin-top: 0; box-shadow: none; border: none; padding: 0;">
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div>
+              <h3 style="margin-bottom: 10px;">${license.licenseId}</h3>
+              <p style="color: var(--text-secondary);">${license.licensedTo} • ${license.email}</p>
+            </div>
+            <span class="badge ${statusClass}">${status.toUpperCase()}</span>
+          </div>
+          <div style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+            <div>
+              <p style="color: var(--text-secondary); font-size: 12px;">Expires</p>
+              <p>${new Date(license.expiresAt).toLocaleDateString()}</p>
+            </div>
+            <div>
+              <p style="color: var(--text-secondary); font-size: 12px;">Devices</p>
+              <p>${license.devicesUsed} / ${license.maxDevices}</p>
+            </div>
+            <div>
+              <p style="color: var(--text-secondary); font-size: 12px;">Offline Grace</p>
+              <p>${license.offlineGraceDays} days</p>
+            </div>
+            <div>
+              <p style="color: var(--text-secondary); font-size: 12px;">Created</p>
+              <p>${new Date(license.createdAt).toLocaleDateString()}</p>
+            </div>
+            ${license.licenseKey ? `
+            <div style="grid-column: 1 / -1; margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid var(--border);">
+              <p style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">Encrypted License Key</p>
+              <div style="display: flex; gap: 10px; align-items: start;">
+                <code style="word-break: break-all; font-size: 11px; flex: 1; color: var(--accent);">${license.licenseKey}</code>
+                <button class="btn-secondary btn-sm" onclick="navigator.clipboard.writeText('${license.licenseKey}')" style="padding: 4px 8px;">Copy</button>
+              </div>
+            </div>
+            ` : ''}
+          </div>
+          <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn-primary btn-sm" onclick="viewActivations('${license.licenseId}', this)">👥 View Devices</button>
+            ${!license.revoked ? `<button class="btn-warning btn-sm" onclick="revokeLicense('${license.licenseId}')">⚠️ Revoke</button>` : ''}
+          </div>
+          <div class="device-list" id="activations-${license.licenseId}"></div>
+        </div>
+      `;
+    }
+
+    // Display License Card (Search)
+    function displayLicenseCard(license) {
+      const container = document.getElementById('searchResults');
+      container.innerHTML = getLicenseCardHtml(license);
+    }
+
+    // View License Details (Modal)
+    async function viewLicenseDetails(licenseId) {
+      // Show loading in modal
+      const modal = document.getElementById('detailsModal');
+      const content = document.getElementById('licenseDetails');
+      content.innerHTML = '<p>Loading details...</p>';
+      modal.classList.add('show');
+
+      try {
+        const result = await api(`/api/license/${licenseId}`);
+        if (result.success) {
+          content.innerHTML = getLicenseCardHtml(result.data);
+        } else {
+          content.innerHTML = `<p class="error-message">Failed to load details: ${result.message}</p>`;
+        }
+      } catch (error) {
+        content.innerHTML = `<p class="error-message">Error: ${error.message}</p>`;
+      }
+    }
+
+    // View Activations
+    async function viewActivations(licenseId, btn) {
+      // Find the container relative to the button to avoid ID conflicts (modal vs search list)
+      const card = btn.closest('.card');
+      const container = card.querySelector('.device-list');
+
+      container.innerHTML = '<p style="padding: 15px; color: var(--text-secondary);">Loading devices...</p>';
+
+      try {
+        const result = await api(`/api/license/${licenseId}/activations`);
+        if (result.success && result.data.activations.length > 0) {
+          container.innerHTML = result.data.activations.map(device => `
+            <div class="device-item">
+              <div class="device-info">
+                <strong>${device.machineId}</strong>
+                <p>${device.platform || 'Unknown'} • ${device.timezone || 'Unknown TZ'} • IP: ${device.ipAddress || 'N/A'}</p>
+                <p>Last seen: ${new Date(device.lastSeenAt).toLocaleString()}</p>
+              </div>
+              <button class="btn-danger btn-sm" onclick="revokeDevice('${licenseId}', '${device.machineId}')">Remove</button>
+            </div>
+          `).join('');
+        } else {
+          container.innerHTML = '<p style="padding: 15px; color: var(--text-secondary);">No devices activated yet.</p>';
+        }
+      } catch (error) {
+        container.innerHTML = '<p style="padding: 15px; color: var(--danger);">Failed to load devices.</p>';
+      }
+    }
+
+    // Create License
+    async function createLicense(event) {
+      event.preventDefault();
+
+      const payload = {
+        licensedTo: document.getElementById('licensedTo').value,
+        email: document.getElementById('email').value,
+        maxDevices: parseInt(document.getElementById('maxDevices').value),
+        offlineGraceDays: parseInt(document.getElementById('offlineGraceDays').value),
+        expiresAt: new Date(document.getElementById('expiresAt').value).toISOString(),
+        features: [document.getElementById('features').value]
+      };
+
+      try {
+        const result = await api('/api/license/generate', 'POST', payload);
+        if (result.success) {
+          document.getElementById('generatedKey').textContent = result.data.encryptedKey;
+          document.getElementById('generatedLicenseInfo').innerHTML = `
+            <div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">
+              <p><strong>License ID:</strong> ${result.data.licenseId}</p>
+              <p><strong>Licensed To:</strong> ${result.data.licensedTo}</p>
+              <p><strong>Expires:</strong> ${new Date(result.data.expiresAt).toLocaleDateString()}</p>
+              <p><strong>Max Devices:</strong> ${result.data.maxDevices}</p>
+            </div>
+          `;
+          document.getElementById('keyModal').classList.add('show');
+          document.getElementById('createForm').reset();
+          showToast('License created successfully!', 'success');
+        } else {
+          showToast(result.message || 'Failed to create license', 'error');
+        }
+      } catch (error) {
+        showToast('Failed to create license', 'error');
+      }
+    }
+
+    // Validate License
+    async function validateLicense() {
+      const payload = {
+        licenseKey: document.getElementById('licenseKey').value,
+        machineId: document.getElementById('machineId').value,
+        timezone: document.getElementById('timezone').value,
+        platform: document.getElementById('platform').value,
+        appVersion: document.getElementById('appVersion').value
+      };
+
+      if (!payload.licenseKey || !payload.machineId) {
+        showToast('License key and Machine ID are required', 'error');
+        return;
+      }
+
+      const resultDiv = document.getElementById('validateResult');
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = '<p>Validating...</p>';
+
+      try {
+        const result = await api('/api/license/validate', 'POST', payload, false);
+        if (result.success) {
+          resultDiv.innerHTML = `
+            <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid var(--success); padding: 20px; border-radius: 8px;">
+              <h4 style="color: var(--success); margin-bottom: 15px;">✅ License Valid!</h4>
+              <p><strong>License ID:</strong> ${result.data.licenseId}</p>
+              <p><strong>Licensed To:</strong> ${result.data.licensedTo}</p>
+              <p><strong>Expires:</strong> ${new Date(result.data.expiresAt).toLocaleDateString()}</p>
+              <p><strong>Devices:</strong> ${result.data.devicesUsed} / ${result.data.maxDevices}</p>
+              <p><strong>Offline Grace:</strong> ${result.data.offlineGraceDays} days</p>
+              <p><strong>Features:</strong> ${result.data.features.join(', ')}</p>
+            </div>
+          `;
+          showToast('License validated successfully!', 'success');
+        } else {
+          resultDiv.innerHTML = `
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); padding: 20px; border-radius: 8px;">
+              <h4 style="color: var(--danger); margin-bottom: 10px;">❌ Validation Failed</h4>
+              <p><strong>Error:</strong> ${result.message}</p>
+              ${result.error ? `<p><strong>Code:</strong> ${result.error.code}</p>` : ''}
+              ${result.error?.details ? `<p><strong>Details:</strong> ${result.error.details}</p>` : ''}
+            </div>
+          `;
+          showToast(result.message || 'Validation failed', 'error');
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `
+          <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); padding: 20px; border-radius: 8px;">
+            <h4 style="color: var(--danger);">❌ Connection Error</h4>
+            <p>Could not connect to the server.</p>
+          </div>
+        `;
+        showToast('Failed to validate license', 'error');
+      }
+    }
+
+    // Revoke License
+    async function revokeLicense(licenseId) {
+      if (!confirm(`Are you sure you want to revoke license ${licenseId}? This cannot be undone.`)) {
+        return;
+      }
+
+      try {
+        const result = await api(`/api/license/${licenseId}`, 'DELETE');
+        if (result.success) {
+          showToast('License revoked successfully', 'success');
+          searchLicense();
+        } else {
+          showToast(result.message || 'Failed to revoke license', 'error');
+        }
+      } catch (error) {
+        showToast('Failed to revoke license', 'error');
+      }
+    }
+
+    // Revoke Device
+    async function revokeDevice(licenseId, machineId) {
+      if (!confirm(`Remove device ${machineId} from this license?`)) {
+        return;
+      }
+
+      try {
+        const result = await api(`/api/license/${licenseId}/activations/${encodeURIComponent(machineId)}`, 'DELETE');
+        if (result.success) {
+          showToast('Device removed successfully', 'success');
+          viewActivations(licenseId);
+        } else {
+          showToast(result.message || 'Failed to remove device', 'error');
+        }
+      } catch (error) {
+        showToast('Failed to remove device', 'error');
+      }
+    }
+
+    // Copy Key
+    function copyKey() {
+      const key = document.getElementById('generatedKey').textContent;
+      navigator.clipboard.writeText(key);
+      showToast('Copied to clipboard!', 'success');
+    }
+
+    // Modals
+    function closeModal() {
+      document.getElementById('detailsModal').classList.remove('show');
+    }
+
+    function closeKeyModal() {
+      document.getElementById('keyModal').classList.remove('show');
+    }
+
+    // Close modals on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.classList.remove('show');
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,384 @@
+{
+    "info": {
+        "name": "MediaUnboxed License API",
+        "description": "API collection for MediaUnboxed License Service",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:3000",
+            "type": "string"
+        },
+        {
+            "key": "apiKey",
+            "value": "dev-api-key-change-in-production",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "License",
+            "description": "License management endpoints",
+            "item": [
+                {
+                    "name": "Generate License",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "x-api-key",
+                                "value": "{{apiKey}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"licensedTo\": \"Test Organization\",\n  \"email\": \"admin@testorg.com\",\n  \"features\": [\"all\"],\n  \"maxDevices\": 3,\n  \"offlineGraceDays\": 180,\n  \"expiresAt\": \"2025-12-31T00:00:00Z\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/license/generate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "license",
+                                "generate"
+                            ]
+                        },
+                        "description": "Generate a new encrypted license key. Requires API key authentication."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "Created",
+                            "code": 201,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"message\": \"License generated successfully\",\n  \"data\": {\n    \"licenseId\": \"LIC-2024-A1B2C3D4\",\n    \"licensedTo\": \"Test Organization\",\n    \"email\": \"admin@testorg.com\",\n    \"features\": [\"all\"],\n    \"maxDevices\": 3,\n    \"offlineGraceDays\": 180,\n    \"expiresAt\": \"2025-12-31T00:00:00.000Z\",\n    \"encryptedKey\": \"dGhpcyBpcyBhIHNhbXBsZSBlbmNyeXB0ZWQga2V5Li4u...\"\n  },\n  \"meta\": {\n    \"serverTime\": \"2024-12-16T20:00:00.000Z\"\n  }\n}"
+                        },
+                        {
+                            "name": "Unauthorized",
+                            "status": "Unauthorized",
+                            "code": 401,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": false,\n  \"message\": \"Invalid or missing API key\",\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\"\n  },\n  \"meta\": {\n    \"serverTime\": \"2024-12-16T20:00:00.000Z\"\n  }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Validate License",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"licenseKey\": \"YOUR_ENCRYPTED_LICENSE_KEY_HERE\",\n  \"machineId\": \"device-unique-identifier-12345\",\n  \"timezone\": \"America/New_York\",\n  \"platform\": \"darwin\",\n  \"osVersion\": \"14.0\",\n  \"appVersion\": \"1.0.0\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/license/validate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "license",
+                                "validate"
+                            ]
+                        },
+                        "description": "Validate a license key and register the device. No authentication required - this is called from client apps."
+                    },
+                    "response": [
+                        {
+                            "name": "Success - New Device",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"message\": \"License validated successfully\",\n  \"data\": {\n    \"valid\": true,\n    \"licenseId\": \"LIC-2024-A1B2C3D4\",\n    \"licensedTo\": \"Test Organization\",\n    \"features\": [\"all\"],\n    \"expiresAt\": \"2025-12-31T00:00:00.000Z\",\n    \"offlineGraceDays\": 180,\n    \"devicesUsed\": 1,\n    \"maxDevices\": 3\n  },\n  \"meta\": {\n    \"serverTime\": \"2024-12-16T20:00:00.000Z\"\n  }\n}"
+                        },
+                        {
+                            "name": "Success - Existing Device",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"message\": \"License validated successfully\",\n  \"data\": {\n    \"valid\": true,\n    \"licenseId\": \"LIC-2024-A1B2C3D4\",\n    \"licensedTo\": \"Test Organization\",\n    \"features\": [\"all\"],\n    \"expiresAt\": \"2025-12-31T00:00:00.000Z\",\n    \"offlineGraceDays\": 180,\n    \"devicesUsed\": 2,\n    \"maxDevices\": 3\n  },\n  \"meta\": {\n    \"serverTime\": \"2024-12-16T20:00:00.000Z\"\n  }\n}"
+                        },
+                        {
+                            "name": "Error - Invalid License Key",
+                            "status": "Bad Request",
+                            "code": 400,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": false,\n  \"message\": \"Invalid license key\",\n  \"error\": {\n    \"code\": \"LICENSE_DECRYPTION_FAILED\"\n  },\n  \"meta\": {\n    \"serverTime\": \"2024-12-16T20:00:00.000Z\"\n  }\n}"
+                        },
+                        {
+                            "name": "Error - License Not Found",
+                            "status": "Not Found",
+                            "code": 404,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": false,\n  \"message\": \"License not found\",\n  \"error\": {\n    \"code\": \"LICENSE_NOT_FOUND\"\n  },\n  \"meta\": {\n    \"serverTime\": \"2024-12-16T20:00:00.000Z\"\n  }\n}"
+                        },
+                        {
+                            "name": "Error - License Expired",
+                            "status": "Forbidden",
+                            "code": 403,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": false,\n  \"message\": \"License has expired\",\n  \"error\": {\n    \"code\": \"LICENSE_EXPIRED\",\n    \"details\": \"License expired on 2024-01-01T00:00:00.000Z\"\n  },\n  \"meta\": {\n    \"serverTime\": \"2024-12-16T20:00:00.000Z\"\n  }\n}"
+                        },
+                        {
+                            "name": "Error - License Revoked",
+                            "status": "Forbidden",
+                            "code": 403,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": false,\n  \"message\": \"License has been revoked\",\n  \"error\": {\n    \"code\": \"LICENSE_REVOKED\"\n  },\n  \"meta\": {\n    \"serverTime\": \"2024-12-16T20:00:00.000Z\"\n  }\n}"
+                        },
+                        {
+                            "name": "Error - Device Limit Reached",
+                            "status": "Forbidden",
+                            "code": 403,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": false,\n  \"message\": \"Device limit reached\",\n  \"error\": {\n    \"code\": \"LICENSE_DEVICE_LIMIT\",\n    \"details\": \"Maximum of 3 devices already activated\"\n  },\n  \"meta\": {\n    \"serverTime\": \"2024-12-16T20:00:00.000Z\"\n  }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get License Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "x-api-key",
+                                "value": "{{apiKey}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/license/LIC-2024-A1B2C3D4",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "license",
+                                "LIC-2024-A1B2C3D4"
+                            ]
+                        },
+                        "description": "Get details of a specific license. Requires API key authentication."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"message\": \"License retrieved successfully\",\n  \"data\": {\n    \"licenseId\": \"LIC-2024-A1B2C3D4\",\n    \"licensedTo\": \"Test Organization\",\n    \"email\": \"admin@testorg.com\",\n    \"features\": [\"all\"],\n    \"maxDevices\": 3,\n    \"offlineGraceDays\": 180,\n    \"expiresAt\": \"2025-12-31T00:00:00.000Z\",\n    \"revoked\": false,\n    \"revokedAt\": null,\n    \"createdAt\": \"2024-12-16T20:00:00.000Z\",\n    \"devicesUsed\": 2\n  },\n  \"meta\": {\n    \"serverTime\": \"2024-12-16T20:00:00.000Z\"\n  }\n}"
+                        },
+                        {
+                            "name": "Not Found",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": false,\n  \"message\": \"License not found\",\n  \"error\": {\n    \"code\": \"NOT_FOUND\",\n    \"details\": \"No license found with this ID\"\n  },\n  \"meta\": {\n    \"serverTime\": \"2024-12-16T20:00:00.000Z\"\n  }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Revoke License",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "x-api-key",
+                                "value": "{{apiKey}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/license/LIC-2024-A1B2C3D4",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "license",
+                                "LIC-2024-A1B2C3D4"
+                            ]
+                        },
+                        "description": "Revoke a license. The license will no longer be valid for any device. Requires API key authentication."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"message\": \"License revoked successfully\",\n  \"data\": {\n    \"licenseId\": \"LIC-2024-A1B2C3D4\"\n  },\n  \"meta\": {\n    \"serverTime\": \"2024-12-16T20:00:00.000Z\"\n  }\n}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Activations",
+            "description": "Device activation management endpoints",
+            "item": [
+                {
+                    "name": "Get License Activations",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "x-api-key",
+                                "value": "{{apiKey}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/license/LIC-2024-A1B2C3D4/activations",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "license",
+                                "LIC-2024-A1B2C3D4",
+                                "activations"
+                            ]
+                        },
+                        "description": "Get all device activations for a license. Requires API key authentication."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"message\": \"Activations retrieved successfully\",\n  \"data\": {\n    \"licenseId\": \"LIC-2024-A1B2C3D4\",\n    \"activations\": [\n      {\n        \"machineId\": \"device-unique-identifier-12345\",\n        \"ipAddress\": \"192.168.1.100\",\n        \"timezone\": \"America/New_York\",\n        \"platform\": \"darwin\",\n        \"osVersion\": \"14.0\",\n        \"appVersion\": \"1.0.0\",\n        \"activatedAt\": \"2024-12-16T18:00:00.000Z\",\n        \"lastSeenAt\": \"2024-12-16T20:00:00.000Z\"\n      },\n      {\n        \"machineId\": \"device-unique-identifier-67890\",\n        \"ipAddress\": \"192.168.1.101\",\n        \"timezone\": \"Europe/London\",\n        \"platform\": \"win32\",\n        \"osVersion\": \"10.0\",\n        \"appVersion\": \"1.0.0\",\n        \"activatedAt\": \"2024-12-16T19:00:00.000Z\",\n        \"lastSeenAt\": \"2024-12-16T19:30:00.000Z\"\n      }\n    ],\n    \"totalDevices\": 2\n  },\n  \"meta\": {\n    \"serverTime\": \"2024-12-16T20:00:00.000Z\"\n  }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Revoke Device Activation",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "x-api-key",
+                                "value": "{{apiKey}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/license/LIC-2024-A1B2C3D4/activations/device-unique-identifier-12345",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "license",
+                                "LIC-2024-A1B2C3D4",
+                                "activations",
+                                "device-unique-identifier-12345"
+                            ]
+                        },
+                        "description": "Revoke a specific device activation. The device will need to re-activate (if device limit allows). Requires API key authentication."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"message\": \"Device activation revoked successfully\",\n  \"data\": {\n    \"licenseId\": \"LIC-2024-A1B2C3D4\",\n    \"machineId\": \"device-unique-identifier-12345\"\n  },\n  \"meta\": {\n    \"serverTime\": \"2024-12-16T20:00:00.000Z\"\n  }\n}"
+                        },
+                        {
+                            "name": "Not Found",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": false,\n  \"message\": \"Activation not found\",\n  \"error\": {\n    \"code\": \"NOT_FOUND\",\n    \"details\": \"No activation found for this device\"\n  },\n  \"meta\": {\n    \"serverTime\": \"2024-12-16T20:00:00.000Z\"\n  }\n}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
