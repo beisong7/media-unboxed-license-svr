@@ -1,11 +1,37 @@
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: mediaunboxed-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_NAME:-mediaunboxed}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-mediaunboxed}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   api:
     image: mediaunboxed-backend:latest
     container_name: mediaunboxed-api
     restart: unless-stopped
     env_file:
-      - /secret/.env_production
+      - .env
+    environment:
+      DB_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
+      - internal
       - traefik-network
     labels:
       - "traefik.enable=true"
@@ -14,6 +40,10 @@ services:
       - "traefik.http.routers.mediaunboxed-api.tls.certresolver=letsencrypt"
       - "traefik.http.services.mediaunboxed-api.loadbalancer.server.port=3000"
 
+volumes:
+  pgdata:
+
 networks:
+  internal:
   traefik-network:
     external: true
