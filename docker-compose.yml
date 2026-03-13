@@ -8,7 +8,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
-      - traefik-network
+      - proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.mediaunboxed-api.rule=Host(`license.api.mediaunboxed.com`)"
@@ -17,5 +17,5 @@ services:
       - "traefik.http.services.mediaunboxed-api.loadbalancer.server.port=3000"
 
 networks:
-  traefik-network:
+  proxy:
     external: true
